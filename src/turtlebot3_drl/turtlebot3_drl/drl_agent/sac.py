@@ -6,7 +6,7 @@ from torch.distributions import Normal
 import math
 import numpy
 
-from ..drl_environment.drl_environment import NUM_SCAN_SAMPLES
+from ..drl_environment.drl_environment import NUM_SCAN_SAMPLES, LENGTH_TEXT_EMBEDDING
 from turtlebot3_drl.drl_environment.reward import REWARD_FUNCTION
 from ..common.settings import ENABLE_BACKWARD, ENABLE_STACKING
 
@@ -127,6 +127,9 @@ class Critic(nn.Module):
         return q1_output, q2_output
 
 class SAC():
+    """
+    Soft Actor-Critic
+    """
     def __init__(self, device, sim_speed):
         self.device = device
         self.iteration = 0
@@ -134,7 +137,7 @@ class SAC():
         # DRL parameters
         self.batch_size      = 1024
         self.buffer_size     = 1000000
-        self.state_size      = NUM_SCAN_SAMPLES + 4
+        self.state_size      = NUM_SCAN_SAMPLES + LENGTH_TEXT_EMBEDDING + 2
         self.action_size     = 2
         self.hidden_size     = 512
         self.discount_factor = 0.99

@@ -1,0 +1,129 @@
+storage:
+  goal:
+    x: -5.0
+    y: 0.0
+  sentences:
+    - Go to the storage section for small parts.
+    - Navigate to the aisle for large boxes.
+    - Move to the storage rack for electronics.
+    - Proceed to the pallet storage area.
+    - Head to the cold storage section.
+    - Find the shelf with tools in storage.
+    - Go to the storage section for chemicals.
+    - Navigate to the section for fragile items.
+    - Move to the bin storage area.
+    - Head to the mezzanine storage level.
+    - Locate the storage area for office supplies.
+    - Go to the overflow storage section.
+    - Move to the bottom rack in the storage zone.
+    - Navigate to the storage shelf labeled "A1."
+    - Head to the dry goods storage aisle.
+    - Find the pallet rack with bulk inventory.
+    - Go to the long-term storage section.
+    - Move to the storage area marked for hazardous materials.
+    - Navigate to the section for oversized items in storage.
+    - Head to the storage zone nearest to the south wall.
+
+packing:
+  goal:
+    x: 0.0
+    y: -5.0
+  sentences:
+    - Proceed to the packing station by the conveyor belt.
+    - Move to the main packing area.
+    - Go to the small-item packing station.
+    - Navigate to the fragile packing section.
+    - Head to the packing table for large boxes.
+    - Locate the bubble wrap station in packing.
+    - Move to the packing zone for high-value items.
+    - Go to the assembly line packing station.
+    - Navigate to the shipping label printing station.
+    - Proceed to the packing station with barcode scanners.
+    - Head to the automated packing machine area.
+    - Find the packing station for cold chain items.
+    - Go to the packing area for lightweight products.
+    - Move to the final packing inspection table.
+    - Locate the packing station near the loading dock.
+    - Navigate to the packing station marked "P3."
+    - Head to the specialty packing station for liquids.
+    - Go to the oversized package packing area.
+    - Move to the express order packing station.
+    - Navigate to the temporary packing zone.
+
+shipping:
+  goal:
+    x: 5.0
+    y: 5.0
+  sentences:
+    - Head to the primary shipping dock.
+    - Go to the shipping station for international orders.
+    - Navigate to the area for outgoing freight.
+    - Move to the shipping bay for small parcels.
+    - Proceed to the shipping area marked "Zone 1."
+    - Locate the express shipping section.
+    - Go to the shipping zone for heavy items.
+    - Navigate to the shipping area for returns.
+    - Head to the shipping conveyor belt.
+    - Find the pallet wrapping station near shipping.
+    - Go to the document preparation table in shipping.
+    - Move to the staging area for outgoing trucks.
+    - Locate the shipping zone marked "S4."
+    - Head to the small box shipping section.
+    - Navigate to the automated shipping sorter.
+    - Go to the designated shipping aisle for fragile goods.
+    - Move to the shipping area near the northeast corner.
+    - Proceed to the shipping zone for same-day orders.
+    - Locate the shipping label printer in the shipping section.
+    - Head to the pre-loading shipping inspection area.
+
+receiving:
+  goal:
+    x: 5.0
+    y: 0.0
+  sentences:
+    - Go to the main receiving dock.
+    - Navigate to the area for inbound freight.
+    - Proceed to the receiving bay for small parcels.
+    - Head to the receiving station for international shipments.
+    - Locate the unloading zone for incoming trucks.
+    - Move to the pallet receiving area.
+    - Go to the receiving inspection station.
+    - Navigate to the receiving dock marked "R2."
+    - Find the section for unloading fragile items.
+    - Proceed to the bulk receiving area.
+    - Head to the quarantine zone for incoming goods.
+    - Locate the receiving area for high-value items.
+    - Move to the cold storage receiving section.
+    - Go to the receiving dock near the west wall.
+    - Navigate to the temporary receiving zone.
+    - Head to the pallet weighing station in receiving.
+    - Find the inspection table for incoming materials.
+    - Proceed to the receiving area marked "Zone 3."
+    - Locate the receiving station for oversized goods.
+    - Go to the unloading area for hazardous materials.
+
+maintenance:
+  goal:
+    x: -5.0
+    y: 5.0
+  sentences:
+    - Head to the maintenance supply closet.
+    - Go to the maintenance tools storage area.
+    - Navigate to the section with spare parts.
+    - Move to the maintenance workshop.
+    - Locate the equipment calibration station.
+    - Proceed to the battery charging area in maintenance.
+    - Head to the cleaning supplies storage in maintenance.
+    - Go to the maintenance office.
+    - Navigate to the area for emergency repairs.
+    - Move to the station for forklift maintenance.
+    - Locate the oil and lubricant storage area.
+    - Proceed to the maintenance zone for conveyor belts.
+    - Go to the spare parts rack for electrical equipment.
+    - Navigate to the maintenance section near the south dock.
+    - Head to the HVAC maintenance station.
+    - Find the maintenance area for light repairs.
+    - Go to the maintenance zone for heavy equipment.
+    - Move to the safety gear storage area in maintenance.
+    - Navigate to the maintenance area marked "M5."
+    - Proceed to the temporary maintenance staging zone.

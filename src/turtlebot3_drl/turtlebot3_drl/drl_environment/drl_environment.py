@@ -25,6 +25,7 @@ from numpy.core.numeric import Infinity
 from geometry_msgs.msg import Pose, Twist
 from rosgraph_msgs.msg import Clock
 from nav_msgs.msg import Odometry
+from std_msgs.msg import String
 from sensor_msgs.msg import LaserScan
 from turtlebot3_msgs.srv import DrlStep, Goal, RingGoal
 
@@ -34,13 +35,22 @@ from rclpy.qos import QoSProfile, qos_profile_sensor_data
 
 from . import reward as rw
 from ..common import utilities as util
-from ..common.settings import ENABLE_BACKWARD, EPISODE_TIMEOUT_SECONDS, ENABLE_MOTOR_NOISE, UNKNOWN, SUCCESS, COLLISION_WALL, COLLISION_OBSTACLE, TIMEOUT, TUMBLE, \
-                                TOPIC_SCAN, TOPIC_VELO, TOPIC_ODOM, ARENA_LENGTH, ARENA_WIDTH, MAX_NUMBER_OBSTACLES, OBSTACLE_RADIUS, LIDAR_DISTANCE_CAP, \
-                                    SPEED_LINEAR_MAX, SPEED_ANGULAR_MAX, THRESHOLD_COLLISION, THREHSOLD_GOAL, ENABLE_DYNAMIC_GOALS
+from ..common.settings import ENABLE_BACKWARD, EPISODE_TIMEOUT_SECONDS, ENABLE_MOTOR_NOISE, UNKNOWN, SUCCESS, \
+    COLLISION_WALL, COLLISION_OBSTACLE, TIMEOUT, TUMBLE, \
+    TOPIC_SCAN, TOPIC_VELO, TOPIC_ODOM, ARENA_LENGTH, ARENA_WIDTH, MAX_NUMBER_OBSTACLES, OBSTACLE_RADIUS, \
+    LIDAR_DISTANCE_CAP, \
+    SPEED_LINEAR_MAX, SPEED_ANGULAR_MAX, THRESHOLD_COLLISION, THREHSOLD_GOAL, ENABLE_DYNAMIC_GOALS, TOPIC_GOAL_SENTENCE
+
+from ..common.bert import encode_text
 
 # Automatically retrievew from Gazebo model configuration (40 by default).
 # Can be set manually if needed.
 NUM_SCAN_SAMPLES = util.get_scan_count()
+text_embedding = encode_text("Go the the wall 1")  # Sample sentence for getting embedding size
+LENGTH_TEXT_EMBEDDING = len(text_embedding)
+
+print(f'Text embedding length: {LENGTH_TEXT_EMBEDDING}')
+
 LINEAR = 0
 ANGULAR = 1
 MAX_GOAL_DISTANCE = math.sqrt(ARENA_LENGTH**2 + ARENA_WIDTH**2)
@@ -56,8 +66,10 @@ class DRLEnvironment(Node):
         self.velo_topic = TOPIC_VELO
         self.odom_topic = TOPIC_ODOM
         self.goal_topic = 'goal_pose'
+        self.goal_sentence_topic = TOPIC_GOAL_SENTENCE
 
         self.goal_x, self.goal_y = 0.0, 0.0
+        self.goal_sentence = ''
         self.robot_x, self.robot_y = 0.0, 0.0
         self.robot_x_prev, self.robot_y_prev = 0.0, 0.0
         self.robot_heading = 0.0
@@ -73,6 +85,8 @@ class DRLEnvironment(Node):
         self.obstacle_distances = [Infinity] * MAX_NUMBER_OBSTACLES
 
         self.new_goal = False
+        self.new_goal_pose = False
+        self.new_goal_sentence = False
         self.goal_angle = 0.0
         self.goal_distance = MAX_GOAL_DISTANCE
         self.initial_distance_to_goal = MAX_GOAL_DISTANCE
@@ -93,6 +107,7 @@ class DRLEnvironment(Node):
         self.cmd_vel_pub = self.create_publisher(Twist, self.velo_topic, qos)
         # subscribers
         self.goal_pose_sub = self.create_subscription(Pose, self.goal_topic, self.goal_pose_callback, qos)
+        self.goal_sentence_sub = self.create_subscription(String, self.goal_sentence_topic, self.goal_sentence_callback, qos)
         self.odom_sub = self.create_subscription(Odometry, self.odom_topic, self.odom_callback, qos)
         self.scan_sub = self.create_subscription(LaserScan, self.scan_topic, self.scan_callback, qos_profile=qos_profile_sensor_data)
         self.clock_sub = self.create_subscription(Clock, '/clock', self.clock_callback, qos_profile=qos_clock)
@@ -111,10 +126,16 @@ class DRLEnvironment(Node):
     def goal_pose_callback(self, msg):
         self.goal_x = msg.position.x
         self.goal_y = msg.position.y
-        self.new_goal = True
+        self.new_goal_pose = True
+        print(f"new goal! x: {self.goal_x} y: {self.goal_y}")
+
+    def goal_sentence_callback(self, msg):
+        self.goal_sentence = msg.data
+        self.new_goal_sentence = True
         print(f"new goal! x: {self.goal_x} y: {self.goal_y}")
 
     def goal_comm_callback(self, request, response):
+        self.new_goal = self.new_goal_pose and self.new_goal_sentence
         response.new_goal = self.new_goal
         return response
 
@@ -129,6 +150,7 @@ class DRLEnvironment(Node):
             print("ERROR: received odom was not from obstacle!")
 
     def odom_callback(self, msg):
+        # TODO: Camera input could be added here
         self.robot_x = msg.pose.pose.position.x
         self.robot_y = msg.pose.pose.position.y
         _, _, self.robot_heading = util.euler_from_quaternion(msg.pose.pose.orientation)
@@ -153,6 +175,7 @@ class DRLEnvironment(Node):
         while goal_angle < -math.pi:
             goal_angle += 2 * math.pi
 
+        # Will be used in the reward function
         self.goal_distance = distance_to_goal
         self.goal_angle = goal_angle
 
@@ -201,11 +224,16 @@ class DRLEnvironment(Node):
             self.task_fail_client.call_async(req)
 
     def get_state(self, action_linear_previous, action_angular_previous):
+        # Prepare the state vector
         state = copy.deepcopy(self.scan_ranges)                                             # range: [ 0, 1]
-        state.append(float(numpy.clip((self.goal_distance / MAX_GOAL_DISTANCE), 0, 1)))     # range: [ 0, 1]
-        state.append(float(self.goal_angle) / math.pi)                                      # range: [-1, 1]
+        # state.append(float(numpy.clip((self.goal_distance / MAX_GOAL_DISTANCE), 0, 1)))     # range: [ 0, 1]
+        # state.append(float(self.goal_angle) / math.pi)                                      # range: [-1, 1]
+        # state.append()
+        state += encode_text(self.goal_sentence)
         state.append(float(action_linear_previous))                                         # range: [-1, 1]
         state.append(float(action_angular_previous))                                        # range: [-1, 1]
+        # print(state)
+        # print(len(state))
         self.local_step += 1
 
         if self.local_step <= 30: # Grace period to wait for simulation reset
@@ -243,6 +271,8 @@ class DRLEnvironment(Node):
         return response
 
     def step_comm_callback(self, request, response):
+        # print('step_comm_callback')
+
         if len(request.action) == 0:
             return self.initalize_episode(response)
 

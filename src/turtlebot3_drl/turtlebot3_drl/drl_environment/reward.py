@@ -4,6 +4,7 @@ goal_dist_initial = 0
 
 reward_function_internal = None
 
+# TODO: Manuplate this for the project requirements
 def get_reward(succeed, action_linear, action_angular, distance_to_goal, goal_angle, min_obstacle_distance):
     return reward_function_internal(succeed, action_linear, action_angular, distance_to_goal, goal_angle, min_obstacle_distance)
 
@@ -14,6 +15,7 @@ def get_reward_A(succeed, action_linear, action_angular, goal_dist, goal_angle, 
         # [-4, 0]
         r_vangular = -1 * (action_angular**2)
 
+        # Multiplier can be added
         # [-1, 1]
         r_distance = (2 * goal_dist_initial) / (goal_dist_initial + goal_dist) - 1
 
@@ -26,7 +28,10 @@ def get_reward_A(succeed, action_linear, action_angular, goal_dist, goal_angle, 
         # [-2 * (2.2^2), 0]
         r_vlinear = -1 * (((0.22 - action_linear) * 10) ** 2)
 
+        # -1: to give negative reward if no success
         reward = r_yaw + r_distance + r_obstacle + r_vlinear + r_vangular - 1
+
+        # TODO: Positive rewards should be added
 
         if succeed == SUCCESS:
             reward += 2500
@@ -34,6 +39,7 @@ def get_reward_A(succeed, action_linear, action_angular, goal_dist, goal_angle, 
             reward -= 2000
         return float(reward)
 
+# TODO: We should define our reward function here
 # Define your own reward function by defining a new function: 'get_reward_X'
 # Replace X with your reward function name and configure it in settings.py
 

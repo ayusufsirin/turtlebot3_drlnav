@@ -24,6 +24,7 @@ import time
 
 from gazebo_msgs.srv import DeleteEntity, SpawnEntity
 from std_srvs.srv import Empty
+from std_msgs.msg import String
 from geometry_msgs.msg import Pose
 
 import rclpy
@@ -34,6 +35,7 @@ from turtlebot3_msgs.srv import RingGoal
 import xml.etree.ElementTree as ET
 from ..drl_environment.drl_environment import ARENA_LENGTH, ARENA_WIDTH, ENABLE_DYNAMIC_GOALS
 from ..common.settings import ENABLE_TRUE_RANDOM_GOALS
+from ..common import utilities as util
 
 NO_GOAL_SPAWN_MARGIN = 0.3 # meters away from any wall
 class DRLGazebo(Node):
@@ -63,6 +65,7 @@ class DRLGazebo(Node):
         ************************************************************"""
         # Initialise publishers
         self.goal_pose_pub = self.create_publisher(Pose, 'goal_pose', QoSProfile(depth=10))
+        self.goal_sentence_pub = self.create_publisher(String, 'goal_sentence', QoSProfile(depth=10))
 
         # Initialise client
         self.delete_entity_client       = self.create_client(DeleteEntity, 'delete_entity')
@@ -89,11 +92,16 @@ class DRLGazebo(Node):
         time.sleep(1)
 
     def publish_callback(self):
+        goal = util.get_goal_and_sentence()
+
         # Publish goal pose
         goal_pose = Pose()
-        goal_pose.position.x = self.goal_x
-        goal_pose.position.y = self.goal_y
+        goal_pose.position.x = goal['goal'].get('x')
+        goal_pose.position.y = goal['goal'].get('y')
+        goal_sentence = String()
+        goal_sentence.data = goal['sentence']
         self.goal_pose_pub.publish(goal_pose)
+        self.goal_sentence_pub.publish(goal_sentence)
         self.spawn_entity()
 
     def task_succeed_callback(self, request, response):

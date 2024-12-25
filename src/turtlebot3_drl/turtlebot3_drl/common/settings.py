@@ -4,10 +4,10 @@
 
 ENABLE_BACKWARD          = False    # Enable backward movement of the robot
 ENABLE_STACKING          = False    # Enable processing multiple consecutive scan frames at every observation step
-ENABLE_VISUAL            = False    # Meant to be used only during evaluation/testing phase
+ENABLE_VISUAL            = True     # Meant to be used only during evaluation/testing phase
 ENABLE_TRUE_RANDOM_GOALS = False    # If false, goals are selected semi-randomly from a list of known valid goal positions
 ENABLE_DYNAMIC_GOALS     = False    # If true, goal difficulty (distance) is adapted according to current success rate
-MODEL_STORE_INTERVAL     = 100      # Store the model weights every N episodes
+MODEL_STORE_INTERVAL     = 50       # Store the model weights every N episodes
 GRAPH_DRAW_INTERVAL      = 10       # Draw the graph every N episodes (drawing too often will slow down training)
 GRAPH_AVERAGE_REWARD     = 10       # Average the reward graph over every N episodes
 
@@ -23,6 +23,8 @@ EPISODE_TIMEOUT_SECONDS = 50    # Number of seconds after which episode timeout 
 TOPIC_SCAN = 'scan'
 TOPIC_VELO = 'cmd_vel'
 TOPIC_ODOM = 'odom'
+TOPIC_GOAL_POSE = 'goal_pose'
+TOPIC_GOAL_SENTENCE = 'goal_sentence'
 
 EPISODE_TIMEOUT_SECONDS     = 50    # Number of seconds after which episode timeout occurs
 ARENA_LENGTH                = 4.2   # meters

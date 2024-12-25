@@ -355,7 +355,7 @@ ros2 run turtlebot3_drl test_agent ddpg "ddpg_0" 500
 In order to load a model to continue training (e.g. ddpg_0 at episode 500) the following command should be used:
 
 ```
-ros2 run turtlebot3_drl train_agent ddpg "ddpg_0" 500
+  ros2 run turtlebot3_drl train_agent ddpg "ddpg_0" 500
 ```
 
 **Note:** You can also test (or continue training) a model on a different stage than where it was originally trained on.
@@ -491,7 +491,7 @@ To run one of your models (trained in simulation) on a physical robot follow the
   * **REAL_TOPIC**: Set the right ROS topics for your laser scan, odometry and velocity inputs/outputs
   * **REAL_N_SCAN_SAMPLES**: Configure the number of Lidar samples your robot will provide
   * **REAL_LIDAR_CORRECTION**: Depending on the dimensions of your robot the LiDAR values might need to be corrected to avoid the agent from detecting a 'collision' when the robot has not yet actually collided with any obstacle. This value is simply subtracted from the real LiDAR readings and finding the right value requires some trial and error.
-  * Set the remaining options such as the arena dimensions, max velocities, max LiDAR distance, and goal and collision thresholds.
+  * Set the remaself.cmd_vel_pub.publish(twist)ining options such as the arena dimensions, max velocities, max LiDAR distance, and goal and collision thresholds.
 
 Next, when using a physical robot we do not need to run the gazebo simulation node or the gazebo_goals node. We will however still need to run an environment node and an agent node.
 

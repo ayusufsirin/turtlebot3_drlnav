@@ -44,6 +44,7 @@ from ..common.replaybuffer import ReplayBuffer
 
 class DrlAgent(Node):
     def __init__(self, training, algorithm, load_session="", load_episode=0, real_robot=0):
+        # ros2 run turtlebot3_drl test_agent algorithm=ddpg load_session="ddpg_0_stage_4" load_episode=500
         super().__init__(algorithm + '_agent')
         self.algorithm = algorithm
         self.training = int(training)

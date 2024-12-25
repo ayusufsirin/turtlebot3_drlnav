@@ -7,7 +7,49 @@ import time
 import rclpy
 import torch
 import numpy
+from transformers import AutoTokenizer, AutoModel
 from ..common.settings import REWARD_FUNCTION, COLLISION_OBSTACLE, COLLISION_WALL, TUMBLE, SUCCESS, TIMEOUT, RESULTS_NUM
+import yaml
+import random
+
+
+def select_goal_and_sentence(data):
+    """
+    Selects a random goal and corresponding sentence pair from the YAML data.
+
+    Args:
+        data (dict): Parsed YAML data as a dictionary.
+
+    Returns:
+        dict: A dictionary with the selected section, goal, and sentence.
+    """
+    # Randomly select a section from the data
+    section = random.choice(list(data.keys()))
+    section_data = data[section]
+
+    # Extract the goal and sentences for the selected section
+    goal = section_data.get('goal', {})
+    sentences = section_data.get('sentences', [])
+
+    # Randomly select a sentence from the sentences list
+    sentence = random.choice(sentences) if sentences else "No sentence available"
+
+    return {
+        "section": section,
+        "goal": goal,
+        "sentence": sentence
+    }
+
+
+def get_goal_and_sentence():
+    with open(os.getenv('DRLNAV_BASE_PATH') + '/warehouse_mapping.yml') as stream:
+        try:
+            # print(yaml.safe_load(stream))
+            data = yaml.safe_load(stream)
+            return select_goal_and_sentence(data)
+        except yaml.YAMLError as e:
+            print(e)
+
 
 import xml.etree.ElementTree as ET
 
@@ -16,6 +58,18 @@ try:
         stage = int(f.read())
 except FileNotFoundError:
     print("\033[1m" + "\033[93m" + "Make sure to launch the gazebo simulation node first!" + "\033[0m}")
+
+# Load a pre-trained language model
+tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+model = AutoModel.from_pretrained("bert-base-uncased")
+
+def encode_text(text_prompt):
+    inputs = tokenizer(text_prompt, return_tensors="pt")
+    outputs = model(**inputs)
+    # Use mean pooling to get a single vector
+    embeddings = outputs.last_hidden_state.mean(dim=1)
+    # Convert to a Python list of floats
+    return embeddings.squeeze().tolist()
 
 def check_gpu():
     print("gpu torch available: ", torch.cuda.is_available())
@@ -37,6 +91,7 @@ def step(agent_self, action, previous_action):
         if future.done():
             if future.result() is not None:
                 res = future.result()
+                # print(res)
                 return res.state, res.reward, res.done, res.success, res.distance_traveled
             else:
                 agent_self.get_logger().error(
@@ -145,4 +200,6 @@ def get_scan_count():
 def get_simulation_speed(stage):
     tree = ET.parse(os.getenv('DRLNAV_BASE_PATH') + '/src/turtlebot3_simulations/turtlebot3_gazebo/worlds/turtlebot3_drl_stage' + str(stage) + '/burger.model')
     root = tree.getroot()
-    return int(root.find('world').find('physics').find('real_time_factor').text)
+    real_time_factor = int(root.find('world').find('physics').find('real_time_factor').text)
+    print(f'real_time_factor: {real_time_factor}')
+    return real_time_factor

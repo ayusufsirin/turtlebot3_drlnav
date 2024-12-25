@@ -77,6 +77,11 @@ WORKDIR /home/turtlebot3_drlnav
 
 RUN apt-get install -y nano tmux
 
+#RUN apt-get install -y ros-humble-rosbridge-*
+RUN pip config set global.trusted-host "pypi.org files.pythonhosted.org pypi.python.org"
+RUN pip install transformers
+RUN pip install --trusted-host=pypi.org --trusted-host=files.pythonhosted.org --user pip-system-certs
+
 # Set up ~/.bashrc file
 RUN echo \
     "\n"\
